@@ -8,7 +8,7 @@ import cn.zbx1425.worldcomment.data.client.CommentPrefillInfo;
 import cn.zbx1425.worldcomment.data.client.Screenshot;
 import cn.zbx1425.worldcomment.gui.CommentSendScreen;
 import cn.zbx1425.worldcomment.mixin.KeyMappingAccessor;
-import com.mojang.blaze3d.platform.InputConstants;
+import cn.zbx1425.worldcomment.platform.multiver.MinecraftClientShim;import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.core.registries.Registries;
 //? }
@@ -23,7 +23,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -70,14 +69,21 @@ public class CommentToolItem extends Item implements GroupedItem {
         }
 
         private static final int[] MODIFIER_SYMS = new int[] {
-            GLFW.GLFW_KEY_LEFT_ALT, GLFW.GLFW_KEY_RIGHT_ALT, GLFW.GLFW_KEY_LEFT_SHIFT, GLFW.GLFW_KEY_RIGHT_SHIFT,
-            GLFW.GLFW_KEY_LEFT_SUPER, GLFW.GLFW_KEY_RIGHT_SUPER, GLFW.GLFW_KEY_LEFT_CONTROL, GLFW.GLFW_KEY_RIGHT_CONTROL
+            InputConstants.KEY_LALT, InputConstants.KEY_RALT, InputConstants.KEY_LSHIFT, InputConstants.KEY_RSHIFT,
+            InputConstants.KEY_LCONTROL, InputConstants.KEY_RCONTROL,
+            //? if >=26.3
+            InputConstants.KEY_LGUI, InputConstants.KEY_RGUI,
+            //? if <26.3
+            //InputConstants.KEY_LSUPER, InputConstants.KEY_RSUPER,
         };
         private static final Function<InputConstants.Key, Boolean> HOTKEY_IS_MODIFIER_SUPPLIER = Util.memoize(sendCommentOrModifier ->
             Arrays.stream(MODIFIER_SYMS).anyMatch(it -> sendCommentOrModifier.getValue() == it)
         );
         private static final Function<InputConstants.Key, Component> HOTKEY_DESCRIPTION_SUPPLIER = Util.memoize(sendCommentOrModifier -> {
-            if (sendCommentOrModifier.equals(InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_GRAVE))) {
+            //? if >=26.3
+            if (sendCommentOrModifier.getType() == InputConstants.Type.KEYBOARD && sendCommentOrModifier.getValue() == InputConstants.KEY_GRAVE) {
+            //? if <26.3
+            //if (sendCommentOrModifier.equals(InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_GRAVE))) {
                 return Component.translatable("gui.worldcomment.instruction.key.tilde");
             } else if (HOTKEY_IS_MODIFIER_SUPPLIER.apply(sendCommentOrModifier)) {
                 return MainClient.KEY_SEND_COMMENT_MODIFIER.get().getTranslatedKeyMessage().copy()
@@ -117,14 +123,14 @@ public class CommentToolItem extends Item implements GroupedItem {
         public static boolean triggerCommentSend(boolean withPlacingDown) {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.player == null) return false;
-            if (minecraft.screen != null && !(minecraft.screen instanceof ChatScreen)) return false;
+            if (MinecraftClientShim.guiGetScreen() != null && !(MinecraftClientShim.guiGetScreen() instanceof ChatScreen)) return false;
             if (PlaceableCommentItem.Client.getHolding() != null) return false;
             if (Screenshot.isGrabbing) return false;
             minecraft.player.playSound(shutterSoundEvent);
 
             Screenshot.grabScreenshot(imageBytes -> {
                 CommentPrefillInfo prefill = new CommentPrefillInfo(minecraft.player, minecraft.player.blockPosition(), imageBytes);
-                Minecraft.getInstance().setScreen(new CommentSendScreen(prefill, withPlacingDown));
+                MinecraftClientShim.guiSetScreen(new CommentSendScreen(prefill, withPlacingDown));
             });
             return true;
         }

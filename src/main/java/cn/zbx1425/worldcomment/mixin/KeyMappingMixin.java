@@ -5,6 +5,7 @@ import cn.zbx1425.worldcomment.data.client.Screenshot;
 import cn.zbx1425.worldcomment.gui.CommentListScreen;
 import cn.zbx1425.worldcomment.item.CommentToolItem;
 import cn.zbx1425.worldcomment.item.PlaceableCommentItem;
+import cn.zbx1425.worldcomment.platform.multiver.MinecraftClientShim;
 import cn.zbx1425.worldcomment.util.KeyMappingUtil;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -51,7 +52,7 @@ public class KeyMappingMixin {
                 cir.setReturnValue(false);
             }
         }
-        if (options.keyScreenshot.same((KeyMapping)(Object)this) && Minecraft.getInstance().screen instanceof KeyBindsScreen) {
+        if (options.keyScreenshot.same((KeyMapping)(Object)this) && MinecraftClientShim.guiGetScreen() instanceof KeyBindsScreen) {
             // Vanilla compatibility: Prevent screenshot triggering in KeyBindsScreen
             cir.setReturnValue(false);
         }

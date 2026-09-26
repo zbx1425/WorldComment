@@ -115,7 +115,8 @@ public class ClientProxy {
 
 //? if >=1.21.2 {
         @SubscribeEvent
-        public static void onRenderLevelStage(RenderLevelStageEvent.AfterTranslucentFeatures event) { {
+        public static void onRenderLevelStage(RenderLevelStageEvent.AfterTranslucentFeatures event) {
+            {
 //? } else {
         /*@SubscribeEvent
         public static void onRenderLevelStage(RenderLevelStageEvent event) {
@@ -129,12 +130,22 @@ public class ClientProxy {
                 } else {
                     world_comment$lastFrameKeyPlayerListDown = false;
                 }
+//? if >=26.3 {
+            }
+        }
 
+        @SubscribeEvent
+        public static void onSubmitCustomGeometry(SubmitCustomGeometryEvent event) {
+            {
+//? }
                 PoseStack matrices = event.getPoseStack();
                 matrices.pushPose();
-                Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+                Vec3 cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().position();
                 matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-                CommentWorldRenderer.renderComments(Minecraft.getInstance().renderBuffers().bufferSource(), matrices);
+                //? if >=26.3
+                CommentWorldRenderer.renderComments(event.getSubmitNodeCollector(), matrices);
+                //? if <26.3
+                //CommentWorldRenderer.renderComments(Minecraft.getInstance().renderBuffers().bufferSource(), matrices);
                 matrices.popPose();
             }
         }

@@ -2,7 +2,7 @@ plugins {
     id("dev.kikugie.stonecutter")
 }
 
-stonecutter active "26.1-neoforge"
+stonecutter active "26.3-neoforge"
 
 // See https://stonecutter.kikugie.dev/wiki/config/params
 stonecutter parameters {
@@ -43,6 +43,9 @@ stonecutter parameters {
             replace("renderBackground", "extractBackground")
             replace("guiGraphics.drawString", "guiGraphics.text")
             replace("guiGraphics.drawCenteredString", "guiGraphics.centeredText")
+        }
+        string(current.parsed >= "26.3") {
+            replace("gameRenderer.getMainCamera()", "gameRenderer.mainCamera()")
         }
     }
 }

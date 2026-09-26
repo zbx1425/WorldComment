@@ -10,8 +10,14 @@ public class KeyMappingUtil {
 
     public static boolean isKeyDown(KeyMapping keyMapping) {
         InputConstants.Key key = ((KeyMappingAccessor)keyMapping).getKey();
-        return key.getType() == InputConstants.Type.KEYSYM
+        //? if >=26.3 {
+        return key.getType() == InputConstants.Type.KEYBOARD
+            ? InputConstants.isKeyDown(key.getValue())
+            : keyMapping.isDown();
+        //? } else {
+        /*return key.getType() == InputConstants.Type.KEYSYM
             ? InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), key.getValue())
             : keyMapping.isDown();
+        *///? }
     }
 }

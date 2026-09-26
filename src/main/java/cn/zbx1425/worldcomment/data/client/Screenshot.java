@@ -3,6 +3,7 @@ package cn.zbx1425.worldcomment.data.client;
 import cn.zbx1425.worldcomment.Main;
 import cn.zbx1425.worldcomment.MainClient;
 import cn.zbx1425.worldcomment.mixin.NativeImageAccessor;
+import cn.zbx1425.worldcomment.platform.multiver.MinecraftClientShim;
 import cn.zbx1425.worldcomment.util.FrameTask;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.client.Minecraft;
@@ -21,7 +22,10 @@ public class Screenshot {
 
 //? if >=1.21.6 {
     public static void grabScreenshotInternal(Consumer<byte[]> callback) {
-        RenderTarget frameBuf = Minecraft.getInstance().getMainRenderTarget();
+        //? if >=26.3
+        RenderTarget frameBuf = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+        //? if <26.3
+        //RenderTarget frameBuf = Minecraft.getInstance().getMainRenderTarget();
         net.minecraft.client.Screenshot.takeScreenshot(frameBuf, nativeImage -> {
             try (nativeImage) {
                 ByteArrayOutputStream byteArraySink = new ByteArrayOutputStream();
@@ -52,14 +56,14 @@ public class Screenshot {
     public static void grabScreenshot(Consumer<byte[]> callback) {
         if (isGrabbing) return;
         Minecraft minecraft = Minecraft.getInstance();
-        boolean prevHideGui = minecraft.options.hideGui;
+        boolean prevHideGui = MinecraftClientShim.guiHudGetIsHidden();
         Screenshot.applyClientConfigForScreenshot();
         // This is a workaround for the issue that the screenshot will be taken before CommentWorldRenderer is hidden
         FrameTask.enqueue(() -> {
             Screenshot.grabScreenshotInternal(imageBytes -> minecraft.execute(() -> {
                 callback.accept(imageBytes);
             }));
-            minecraft.options.hideGui = prevHideGui;
+            MinecraftClientShim.guiHudSetIsHidden(prevHideGui);
             MainClient.CLIENT_CONFIG.transientPreference.commentVisibilityMask = true;
             Screenshot.isGrabbing = false;
         }, 2);
@@ -78,7 +82,7 @@ public class Screenshot {
 
     public static void applyClientConfigForScreenshot() {
         isGrabbing = true;
-        Minecraft.getInstance().options.hideGui = !MainClient.CLIENT_CONFIG.transientPreference.screenshotIncludeGui;
+        MinecraftClientShim.guiHudSetIsHidden(!MainClient.CLIENT_CONFIG.transientPreference.screenshotIncludeGui);
         MainClient.CLIENT_CONFIG.transientPreference.commentVisibilityMask = MainClient.CLIENT_CONFIG.transientPreference.screenshotIncludeComments;
     }
 }

@@ -63,12 +63,23 @@ public class MainFabricClient implements ClientModInitializer {
 			} else {
 				world_comment$lastFrameKeyPlayerListDown = false;
 			}
+//? if >=26.3 {
+		});
 
+		LevelRenderEvents.COLLECT_SUBMITS.register((context) -> {
+//? }
 			PoseStack matrices = context.poseStack();
 			matrices.pushPose();
-			Vec3 cameraPos = context.gameRenderer().getMainCamera().position();
+			//? if >=26.3
+			Vec3 cameraPos = context.gameRenderer().mainCamera().position();
+			//? if <26.3
+			//Vec3 cameraPos = context.gameRenderer().getMainCamera().position();
 			matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-			CommentWorldRenderer.renderComments(Minecraft.getInstance().renderBuffers().bufferSource(), matrices);
+
+			//? if >=26.3
+			CommentWorldRenderer.renderComments(context.submitNodeCollector(), matrices);
+			//? if <26.3
+			//CommentWorldRenderer.renderComments(Minecraft.getInstance().renderBuffers().bufferSource(), matrices);
 			matrices.popPose();
 		});
 //? }

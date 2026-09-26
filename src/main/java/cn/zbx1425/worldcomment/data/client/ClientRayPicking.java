@@ -53,7 +53,7 @@ public class ClientRayPicking {
                 BlockPos bp = blockData.getKey();
                 AABB blockHitArea = new AABB(bp.getX(), bp.getY(), bp.getZ(),
                         bp.getX() + 1, bp.getY() + 3, bp.getZ() + 1);
-                Frustum cullingFrustum = minecraft.gameRenderer.getMainCamera().getCullFrustum();
+                Frustum cullingFrustum = minecraft.gameRenderer.mainCamera().getCullFrustum();
                 if (!cullingFrustum.isVisible(blockHitArea)) continue;
 
                 NeighborSituation neighborSituation = new NeighborSituation(bp, minecraft.level);

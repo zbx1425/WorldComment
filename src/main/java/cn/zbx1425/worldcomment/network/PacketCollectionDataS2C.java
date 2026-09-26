@@ -5,6 +5,7 @@ import cn.zbx1425.worldcomment.platform.ServerPlatform;
 import cn.zbx1425.worldcomment.data.CommentEntry;
 import cn.zbx1425.worldcomment.data.network.ImageDump;
 import cn.zbx1425.worldcomment.gui.CommentListScreen;
+import cn.zbx1425.worldcomment.platform.multiver.MinecraftClientShim;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
@@ -42,9 +43,8 @@ public class PacketCollectionDataS2C {
                 comments.add(comment);
             }
 
-            Minecraft minecraft = Minecraft.getInstance();
-            if (minecraft.screen instanceof CommentListScreen) {
-                ((CommentListScreen)minecraft.screen).handleCommentDataUI(comments, nonce, commentSize);
+            if (MinecraftClientShim.guiGetScreen() instanceof CommentListScreen) {
+                ((CommentListScreen)MinecraftClientShim.guiGetScreen()).handleCommentDataUI(comments, nonce, commentSize);
             }
 
             ImageDump.handleDumpResponse(comments, nonce);

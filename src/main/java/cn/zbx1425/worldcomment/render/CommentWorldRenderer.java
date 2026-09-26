@@ -13,8 +13,11 @@ import com.mojang.math.Axis;
 //import com.mojang.math.Vector3f;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+//? if >=26.3
+import net.minecraft.client.renderer.SubmitNodeCollector;
+//? if <26.3
+//import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.rendertype.RenderType;import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
@@ -53,13 +56,15 @@ public class CommentWorldRenderer implements IGuiCommon {
         matrices.translate(commentAndSituation.renderOffset.x, cycleHoverY * 0.1, commentAndSituation.renderOffset.y);
         float yaw = (float)Mth.atan2(comment.location.getX() + commentAndSituation.renderOffset.x - cameraPos.x(),
             comment.location.getZ() + commentAndSituation.renderOffset.y - cameraPos.z());
-//? if >=1.20 {
-        matrices.mulPose(Axis.YP.rotation(yaw + cycleRotateY * (Mth.PI / 24)));
-//? } else {
+//? if >=26.3 {
+        matrices.rotate(Axis.YP, yaw + cycleRotateY * (Mth.PI / 24));
+//? } else if >=1.20 {
+        /*matrices.mulPose(Axis.YP.rotation(yaw + cycleRotateY * (Mth.PI / 24)));
+*///? } else {
         /*matrices.mulPose(Vector3f.YP.rotation(yaw + cycleRotateY * (Mth.PI / 24)));
 *///? }
 
-        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
 
         if (!commentAndSituation.neighborSituation.isConfined) {
             TextureAtlasSprite poleSprite = EmojiRegistry.INSTANCE.getPoleSprite();
@@ -100,18 +105,31 @@ public class CommentWorldRenderer implements IGuiCommon {
 *///? }
     }
 
-    public static void renderComments(MultiBufferSource buffers, PoseStack matrices) {
+    //? if >=26.3
+    public static void renderComments(SubmitNodeCollector sink, PoseStack matrices) {
+    //? if <26.3
+    //public static void renderComments(MultiBufferSource buffers, PoseStack matrices) {
         long currentTime = System.currentTimeMillis();
-        VertexConsumer vertices = buffers.getBuffer(RenderTypes.entityTranslucent(EmojiRegistry.ATLAS_TEXTURE_ID));
-        for (Map.Entry<BlockPos, List<ClientRayPicking.CommentAndSituation>> blockData : ClientRayPicking.visibleComments.entrySet()) {
-            for (int i = 0; i < blockData.getValue().size(); i++) {
-                ClientRayPicking.CommentAndSituation commentAndSituation = blockData.getValue().get(i);
-                boolean isVisible = MainClient.CLIENT_CONFIG.isCommentVisible(Minecraft.getInstance(), commentAndSituation.commentEntry);
-                if (!isVisible) continue;
-                boolean showIcon = blockData.getValue().size() < 2 ||
+        RenderType commentRenderType = RenderTypes.entityTranslucent(EmojiRegistry.ATLAS_TEXTURE_ID);
+        //? if >=26.3 {
+        sink.submitCustomGeometry(matrices, commentRenderType, (pose, vertices) -> {
+            PoseStack newMatrices = new PoseStack();
+            newMatrices.mulPose(pose.pose());
+        //? } else {
+        /*VertexConsumer vertices = buffers.getBuffer(commentRenderType);
+        PoseStack newMatrices = matrices;
+        *///? }
+            for (Map.Entry<BlockPos, List<ClientRayPicking.CommentAndSituation>> blockData : ClientRayPicking.visibleComments.entrySet()) {
+                for (int i = 0; i < blockData.getValue().size(); i++) {
+                    ClientRayPicking.CommentAndSituation commentAndSituation = blockData.getValue().get(i);
+                    boolean isVisible = MainClient.CLIENT_CONFIG.isCommentVisible(Minecraft.getInstance(), commentAndSituation.commentEntry);
+                    if (!isVisible) continue;
+                    boolean showIcon = blockData.getValue().size() < 2 ||
                         ((currentTime / 1000) % blockData.getValue().size() == i);
-                renderComment(vertices, matrices, commentAndSituation, showIcon);
+                    renderComment(vertices, newMatrices, commentAndSituation, showIcon);
+                }
             }
-        }
+        //? if >=26.3
+        });
     }
 }

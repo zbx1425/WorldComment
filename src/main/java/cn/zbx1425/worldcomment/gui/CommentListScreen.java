@@ -10,7 +10,7 @@ import cn.zbx1425.worldcomment.data.network.ImageUrlResolver;
 import cn.zbx1425.worldcomment.gui.compat.ISnGuiCanvas;
 import cn.zbx1425.worldcomment.network.PacketCollectionRequestC2S;
 import cn.zbx1425.worldcomment.network.PacketEntryActionC2S;
-import cn.zbx1425.worldcomment.util.FrameTask;
+import cn.zbx1425.worldcomment.platform.multiver.MinecraftClientShim;import cn.zbx1425.worldcomment.util.FrameTask;
 import net.minecraft.client.Minecraft;
 //? if >=1.20
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -371,12 +371,11 @@ public class CommentListScreen extends Screen implements IGuiCommon {
     }
 
     public static void triggerOpen() {
-        Minecraft minecraft = Minecraft.getInstance();
         FrameTask.enqueue(() -> {
-            if (minecraft.screen instanceof CommentListScreen) {
-                minecraft.screen.onClose();
+            if (MinecraftClientShim.guiGetScreen() instanceof CommentListScreen) {
+                MinecraftClientShim.guiGetScreen().onClose();
             } else {
-                minecraft.setScreen(new CommentListScreen(null));
+                MinecraftClientShim.guiSetScreen(new CommentListScreen(null));
             }
         }, 1);
     }
@@ -391,10 +390,10 @@ public class CommentListScreen extends Screen implements IGuiCommon {
 //        if (targetEntry.initiator.equals(CommentEntry.SYSTEM_MESSAGE_MAGIC_INITIATOR)) return false;
 
         minecraft.execute(() -> {
-            if (minecraft.screen instanceof CommentListScreen) {
-                minecraft.screen.onClose();
-            } else if (minecraft.screen == null) {
-                minecraft.setScreen(new CommentListScreen(targetEntry));
+            if (MinecraftClientShim.guiGetScreen() instanceof CommentListScreen) {
+                MinecraftClientShim.guiGetScreen().onClose();
+            } else if (MinecraftClientShim.guiGetScreen() == null) {
+                MinecraftClientShim.guiSetScreen(new CommentListScreen(targetEntry));
             }
         });
         return true;
@@ -821,7 +820,7 @@ public class CommentListScreen extends Screen implements IGuiCommon {
             if (hasImage && mouseX >= cachedImgX && mouseX < cachedImgX + cachedImgW
                     && mouseY >= cachedImgY && mouseY < cachedImgY + cachedImgH) {
                 AbstractWidget.playButtonClickSound(Minecraft.getInstance().getSoundManager());
-                Minecraft.getInstance().setScreen(
+                MinecraftClientShim.guiSetScreen(
                         new ImageViewScreen(CommentListScreen.this, comment.image));
                 return true;
             }

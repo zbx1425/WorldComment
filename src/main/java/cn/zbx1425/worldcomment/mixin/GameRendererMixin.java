@@ -12,7 +12,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class GameRendererMixin {
 
     @Inject(method = "render", at = @At("RETURN"))
-    void render(DeltaTracker deltaTracker, boolean renderLevel, CallbackInfo ci) {
+    //? if >=26.3
+    void render(CallbackInfo ci) {
+    //? if <26.3
+    //void render(DeltaTracker deltaTracker, boolean renderLevel, CallbackInfo ci) {
         FrameTask.onFrameFinished();
     }
 }

@@ -3,7 +3,7 @@ package cn.zbx1425.worldcomment.gui;
 import cn.zbx1425.worldcomment.MainClient;
 import cn.zbx1425.worldcomment.data.client.Screenshot;
 import cn.zbx1425.worldcomment.gui.compat.ISnGuiCanvas;
-import com.mojang.blaze3d.systems.RenderSystem;
+import cn.zbx1425.worldcomment.platform.multiver.MinecraftClientShim;import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 //? if >=1.20
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -29,7 +29,7 @@ public class ScreenshotConfigScreen extends Screen implements IGuiCommon {
 
     public ScreenshotConfigScreen() {
         super(Component.literal("Screenshot Config"));
-        prevHideGui = Minecraft.getInstance().options.hideGui;
+        prevHideGui = MinecraftClientShim.guiHudGetIsHidden();
     }
 
     @Override
@@ -137,7 +137,7 @@ public class ScreenshotConfigScreen extends Screen implements IGuiCommon {
 
     @Override
     public void onClose() {
-        minecraft.options.hideGui = prevHideGui;
+        MinecraftClientShim.guiHudSetIsHidden(prevHideGui);
         MainClient.CLIENT_CONFIG.transientPreference.commentVisibilityMask = true;
         Screenshot.isGrabbing = false;
         super.onClose();

@@ -6,15 +6,15 @@ import cn.zbx1425.worldcomment.item.CommentToolItem;
 import cn.zbx1425.worldcomment.network.*;
 import cn.zbx1425.worldcomment.platform.ClientPlatform;
 import cn.zbx1425.worldcomment.util.RegistryObject;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
-import org.lwjgl.glfw.GLFW;
 
 public class MainClient {
 
 	public static ClientConfig CLIENT_CONFIG = new ClientConfig();
 
 	public static RegistryObject<KeyMapping> KEY_SEND_COMMENT_MODIFIER = new RegistryObject<>(() ->
-		new KeyMapping("key.worldcomment.send_comment_modifier", GLFW.GLFW_KEY_GRAVE_ACCENT, KeyMapping.Category.MISC));
+		new KeyMapping("key.worldcomment.send_comment_modifier", InputConstants.KEY_GRAVE, KeyMapping.Category.MISC));
 
 	public static void init() {
 		ClientWorldData.INSTANCE.proximityCommentSet.onCommentApproach = (comment -> {

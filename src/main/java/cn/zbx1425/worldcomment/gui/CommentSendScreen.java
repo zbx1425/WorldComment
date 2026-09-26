@@ -9,7 +9,7 @@ import cn.zbx1425.worldcomment.data.network.SubmitDispatcher;
 import cn.zbx1425.worldcomment.data.network.SubmitStageEvent;
 import cn.zbx1425.worldcomment.gui.compat.ISnGuiCanvas;
 import cn.zbx1425.worldcomment.network.PacketRequestPlacementC2S;
-import cn.zbx1425.worldcomment.util.OffHeapAllocator;
+import cn.zbx1425.worldcomment.platform.multiver.MinecraftClientShim;import cn.zbx1425.worldcomment.util.OffHeapAllocator;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -113,7 +113,7 @@ public class CommentSendScreen extends Screen implements IGuiCommon {
         this.btnScreenshotConfig = new WidgetColorButton(
             SQ_SIZE, SQ_SIZE,
             Component.literal(""), 0xFFAAAAAA, sender -> {
-            minecraft.setScreen(new ScreenshotConfigScreen());
+            MinecraftClientShim.guiSetScreen(new ScreenshotConfigScreen());
         });
         btnScreenshotConfig.useIcon(0, 128);
         btnScreenshotConfig.setTooltip(Tooltip.create(Component.translatable("gui.worldcomment.screenshot_config")));

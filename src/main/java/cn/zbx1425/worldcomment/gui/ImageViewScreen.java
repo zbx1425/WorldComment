@@ -5,6 +5,7 @@ import cn.zbx1425.worldcomment.data.network.CommentImage;
 import cn.zbx1425.worldcomment.data.network.ImageDownload;
 import cn.zbx1425.worldcomment.data.network.ImageUrlResolver;
 import cn.zbx1425.worldcomment.gui.compat.ISnGuiCanvas;
+import cn.zbx1425.worldcomment.platform.multiver.MinecraftClientShim;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -120,7 +121,7 @@ public class ImageViewScreen extends Screen {
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().setScreen(parent);
+        MinecraftClientShim.guiSetScreen(parent);
     }
 
     @Override

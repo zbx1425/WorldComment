@@ -3,7 +3,9 @@ package cn.zbx1425.worldcomment.gui;
 import cn.zbx1425.worldcomment.Main;
 import cn.zbx1425.worldcomment.data.client.CommentPrefillInfo;
 import cn.zbx1425.worldcomment.data.client.Screenshot;
+import cn.zbx1425.worldcomment.platform.multiver.MinecraftClientShim;
 import cn.zbx1425.worldcomment.util.OffHeapAllocator;
+import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.NativeImage;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
@@ -104,13 +106,16 @@ public class CommentMockScreen {
         groupImage.option(ButtonOption.createBuilder()
             .name(Component.literal("[Open Folder]"))
             .action((screen, btn) -> {
-                Util.getPlatform().openPath(getInputImageDir());
+                //? if >=26.3
+                Blaze3D.openPath(getInputImageDir());
+                //? if <26.3
+                //Util.getPlatform().openPath(getInputImageDir());
             })
             .build());
         groupImage.option(ButtonOption.createBuilder()
             .name(Component.literal("[Refresh]"))
             .action((screen, btn) -> {
-                Minecraft.getInstance().setScreen(CommentMockScreen.create(parent));
+                MinecraftClientShim.guiSetScreen(CommentMockScreen.create(parent));
             })
             .build());
 
@@ -190,9 +195,9 @@ public class CommentMockScreen {
                         OffHeapAllocator.free(offHeapBuffer);
                     }
 
-                    Minecraft.getInstance().setScreen(new CommentSendScreen(prefill, true));
+                    MinecraftClientShim.guiSetScreen(new CommentSendScreen(prefill, true));
                 } catch (Exception ex) {
-                    Minecraft.getInstance().setScreen(YetAnotherConfigLib.createBuilder()
+                    MinecraftClientShim.guiSetScreen(YetAnotherConfigLib.createBuilder()
                         .title(Component.literal("Error"))
                         .category(ConfigCategory.createBuilder()
                             .name(Component.literal("Error"))

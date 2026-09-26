@@ -4,6 +4,7 @@ import cn.zbx1425.worldcomment.data.client.Screenshot;
 import cn.zbx1425.worldcomment.gui.CommentListScreen;
 import cn.zbx1425.worldcomment.gui.CommentMockScreen;
 import cn.zbx1425.worldcomment.item.CommentToolItem;
+import cn.zbx1425.worldcomment.platform.multiver.MinecraftClientShim;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -47,7 +48,7 @@ public class ClientCommand {
                 .requires(Commands.hasPermission(new PermissionCheck.Require(new Permission.HasCommandLevel(PermissionLevel.byId(2)))))
                 .executes(context -> {
                     if (isYaclAvailable()) {
-                        Minecraft.getInstance().setScreen(CommentMockScreen.create(Minecraft.getInstance().screen));
+                        MinecraftClientShim.guiSetScreen(CommentMockScreen.create(MinecraftClientShim.guiGetScreen()));
                     } else {
                         LocalPlayer player = Minecraft.getInstance().player;
                         if (player != null) player.sendSystemMessage(Component.literal("YetAnotherConfigLib is needed for this function."));
